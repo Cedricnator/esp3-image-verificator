@@ -1,11 +1,7 @@
-import pandas as pd
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from PIL import Image
 import os
-import torch
-import numpy as np
 from pathlib import Path
-
 
 mtcnn = MTCNN(
   image_size=160, 
@@ -15,7 +11,6 @@ mtcnn = MTCNN(
 )
 
 resnet = InceptionResnetV1(pretrained='vggface2').eval()
-
 
 def find_files(base: Path):
   return {
