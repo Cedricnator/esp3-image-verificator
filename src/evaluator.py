@@ -32,7 +32,6 @@ def evaluate():
   random_state = 42
   os.makedirs('reports', exist_ok=True)
 
-
   # dividir 
   _, X_val, _, y_val = train_test_split(
     X, y, test_size=0.2, random_state=random_state, stratify=y
@@ -53,7 +52,6 @@ def evaluate():
   best_f1 = f1_scores[best_idx]
 
   cm = confusion_matrix(y_val, y_pred_default)
-
 
   results = {
     "roc_auc": float(roc_auc),

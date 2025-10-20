@@ -33,16 +33,13 @@ scaler = joblib.load(MODELS_DIR / "sclaer.joblib")
 
 DEFAULT_THRESHOLD = 0.5
 
-
 @app.get("/")
 def root() -> Dict[str, str]:
   return {"message": "Face verification service is running"}
 
-
 @app.get("/health")
 def health() -> Dict[str, str]:
   return {"status": "ok"}
-
 
 def extract_embedding(image: Image.Image) -> Tuple[np.ndarray | None, str | None]:
   face = mtcnn(image)
@@ -55,7 +52,6 @@ def extract_embedding(image: Image.Image) -> Tuple[np.ndarray | None, str | None
   embedding = embedding_tensor.cpu().numpy().reshape(1, -1)
   return embedding, None
 
-
 def predict_label(embedding: np.ndarray) -> Dict[str, Any]:
   embedding_scaled = scaler.transform(embedding)
   proba = float(model.predict_proba(embedding_scaled)[0, 1])
@@ -65,7 +61,6 @@ def predict_label(embedding: np.ndarray) -> Dict[str, Any]:
     "probability": proba,
     "threshold": DEFAULT_THRESHOLD,
   }
-
 
 @app.post("/verify")
 def verify() -> Tuple[Any, int] | Dict[str, Any]:
