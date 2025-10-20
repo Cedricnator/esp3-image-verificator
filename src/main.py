@@ -9,10 +9,13 @@ import torch
 from facenet_pytorch import InceptionResnetV1, MTCNN
 from flask import Flask, request
 from PIL import Image, UnidentifiedImageError
+from flask_cors import CORS
 
 torch.set_grad_enabled(False)
 
 app = Flask(__name__)
+
+CORS(app)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MODELS_DIR = REPO_ROOT / "models"
