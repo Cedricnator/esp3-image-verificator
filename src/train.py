@@ -66,6 +66,8 @@ def train() -> None:
     "classification_report": class_report
   }
 
+  os.makedirs("models", exist_ok=True)
+
   dump(model, os.path.join("models", "model.joblib"))
   dump(scaler, os.path.join("models", "sclaer.joblib"))
 
