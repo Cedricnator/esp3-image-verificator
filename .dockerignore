@@ -1,0 +1,7 @@
+.venv
+build
+.gitignore
+.gitignore
+.python-version
+README.md
+requirements.txt
