@@ -39,14 +39,10 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 # Copy application code
 COPY . .
 
-# Copy entrypoint script
-COPY build/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Create cache directory with proper permissions for facenet-pytorch models
+# Create cache directory and download facenet model during build (as root)
 RUN mkdir -p $APP_HOME/.cache/torch/checkpoints \
-  && chown -R app:app $APP_HOME \
-  && chown app:app /entrypoint.sh
+  && python -c "from facenet_pytorch import InceptionResnetV1; InceptionResnetV1(pretrained='vggface2')" \
+  && chown -R app:app $APP_HOME
 
 USER app
 
@@ -55,8 +51,6 @@ EXPOSE 5000
 # Healthcheck (requires curl which is installed above)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${PORT}/health || exit 1
-
-ENTRYPOINT ["/entrypoint.sh"]
 
 # Run Gunicorn. Adjust WORKERS and THREADS via env vars if needed.
 CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "src.main:app", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--threads", "2"]
