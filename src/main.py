@@ -74,6 +74,12 @@ def verify() -> Tuple[Any, int] | Dict[str, Any]:
   if file_storage.filename == "":
     return {"error": "Empty filename"}, 400
 
+  # Validate MIME type
+  allowed_types = {"image/jpeg", "image/png"}
+  content_type = file_storage.content_type
+  if content_type not in allowed_types:
+    return {"error": "solo image/jpeg o image/png"}, 400
+
   try:
     image = Image.open(file_storage.stream).convert("RGB")
   except UnidentifiedImageError:
