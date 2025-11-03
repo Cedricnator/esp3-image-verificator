@@ -21,10 +21,3 @@ ps:
 # Remove all older setup and start fresh services
 .PHONY: recreate
 recreate: down build up ps
-
-.PHONY: develop
-develop:
-	pnpm run dev
-
-.PHONY: dev
-recreate: develop

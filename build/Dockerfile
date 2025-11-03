@@ -42,7 +42,7 @@ RUN chown -R app:app $APP_HOME
 
 USER app
 
-EXPOSE ${PORT}
+EXPOSE 5000
 
 # Healthcheck (requires curl which is installed above)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
