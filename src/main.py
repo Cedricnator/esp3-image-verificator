@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict, Tuple
+import time
 
 import joblib
 import numpy as np
@@ -67,6 +68,8 @@ def predict_label(embedding: np.ndarray) -> Dict[str, Any]:
 
 @app.post("/verify")
 def verify() -> Tuple[Any, int] | Dict[str, Any]:
+  start_time = time.time()
+  
   if "image" not in request.files:
     return {"error": "Missing 'image' file in form-data"}, 400
 
@@ -87,7 +90,11 @@ def verify() -> Tuple[Any, int] | Dict[str, Any]:
 
   embedding, error = extract_embedding(image)
   if embedding is None:
-    return {"error": error}, 422
+    elapsed_time = time.time() - start_time
+    return {"error": error, "time_elapsed": round(elapsed_time, 3)}, 422
 
   result = predict_label(embedding)
+  elapsed_time = time.time() - start_time
+  result["time_elapsed"] = round(elapsed_time, 3)
+  
   return result, 200
