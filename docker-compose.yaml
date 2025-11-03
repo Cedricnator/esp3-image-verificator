@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    container_name: esp3-image-verificator-dev
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./:/app:delegated
+      - ./data:/app/data:delegated
+    environment:
+      - PORT=5000
+      - WORKERS=1
+    command: ["bash", "-lc", "gunicorn -w ${WORKERS:-1} -b 0.0.0.0:${PORT} src.main:app --reload"]
+    tty: true
