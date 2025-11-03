@@ -1,9 +1,10 @@
 services:
-  app:
+  esp3-image-verificator-api:
     build:
       context: .
       dockerfile: build/Dockerfile
-    container_name: esp3-image-verificator-dev
+    container_name: esp3-image-verificator-api
+    hostname: esp3-image-verificator-api
     ports:
       - "8000:5000"
     volumes:
@@ -14,3 +15,9 @@ services:
       - WORKERS=1
     command: ["bash", "-lc", "gunicorn -w ${WORKERS:-1} -b 0.0.0.0:${PORT} src.main:app --reload"]
     tty: true
+    networks:
+      - esp3-network
+
+networks:
+  esp3-network: 
+    external: true
