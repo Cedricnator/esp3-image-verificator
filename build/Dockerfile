@@ -6,7 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     APP_HOME=/app \
     PORT=5000 \
     WORKERS=2 \
-    THREADS=2
+    THREADS=2 \
+    TORCH_HOME=/app/.cache/torch \
+    XDG_CACHE_HOME=/app/.cache
 
 # Install runtime/build dependencies required for Pillow, facenet-pytorch, etc.
 RUN apt-get update \
@@ -37,8 +39,9 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 # Copy application code
 COPY . .
 
-# Ensure files are owned by the non-root user
-RUN chown -R app:app $APP_HOME
+# Create cache directory with proper permissions for facenet-pytorch models
+RUN mkdir -p $APP_HOME/.cache/torch/checkpoints \
+  && chown -R app:app $APP_HOME
 
 USER app
 
