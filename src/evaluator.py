@@ -65,9 +65,9 @@ def evaluate():
   with open(os.path.join("reports", "evaluation.json"), "w") as f:
     json.dump(results, f, indent=4)
 
-  print(f"\n✅ AUC: {roc_auc:.4f}")
-  print(f"✅ Mejor τ (según F1): {best_tau:.3f}")
-  print(f"✅ F1 máximo: {best_f1:.4f}")
+  print(f"\nAUC: {roc_auc:.4f}")
+  print(f"Mejor τ (según F1): {best_tau:.3f}")
+  print(f"F1 máximo: {best_f1:.4f}")
 
   # Graficar
   plt.figure(figsize=(5, 5))
@@ -102,7 +102,7 @@ def evaluate():
   plt.savefig(os.path.join("reports", "precision_recall_curve.png"))
   plt.close()
 
-  print("📊 Resultados guardados en reports/")
+  print("Resultados guardados en reports/")
 
 if __name__ == '__main__':
   evaluate()
