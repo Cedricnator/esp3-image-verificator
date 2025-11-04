@@ -35,7 +35,7 @@ resnet = InceptionResnetV1(pretrained="vggface2").eval().to(DEVICE)
 model = joblib.load(MODELS_DIR / "model.joblib")
 scaler = joblib.load(MODELS_DIR / "sclaer.joblib")
 
-DEFAULT_THRESHOLD = 0.5
+DEFAULT_THRESHOLD = 0.977
 
 @app.get("/")
 def root() -> Dict[str, str]:
