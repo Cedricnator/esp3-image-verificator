@@ -26,11 +26,11 @@ MODELS_DIR = REPO_ROOT / "models"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 mtcnn = MTCNN(
-  image_size=160,
-  margin=0,
-  keep_all=False,
-  min_face_size=20,
-  device=DEVICE,
+    image_size=160,
+    margin=0,
+    keep_all=False,
+    min_face_size=20,
+    device=DEVICE,
 )
 resnet = InceptionResnetV1(pretrained="vggface2").eval().to(DEVICE)
 
@@ -39,80 +39,87 @@ scaler = joblib.load(MODELS_DIR / "sclaer.joblib")
 
 DEFAULT_THRESHOLD = 0.977
 
+
 @app.get("/")
 def root() -> Dict[str, str]:
-  return {"message": "Face verification service is running"}
+    return {"message": "Face verification service is running"}
+
 
 @app.get("/health")
 def health() -> Dict[str, str]:
-  return {"status": "ok"}
+    return {"status": "ok"}
+
 
 def extract_embedding(image: Image.Image) -> Tuple[np.ndarray | None, str | None]:
-  face = mtcnn(image)
-  if face is None:
-    return None, "No face detected in the image"
+    face = mtcnn(image)
+    if face is None:
+        return None, "No face detected in the image"
 
-  with torch.no_grad():
-    embedding_tensor = resnet(face.unsqueeze(0).to(DEVICE))
+    with torch.no_grad():
+        embedding_tensor = resnet(face.unsqueeze(0).to(DEVICE))
 
-  embedding = embedding_tensor.cpu().numpy().reshape(1, -1)
-  return embedding, None
+    embedding = embedding_tensor.cpu().numpy().reshape(1, -1)
+    return embedding, None
+
 
 def predict_label(embedding: np.ndarray) -> Dict[str, Any]:
-  embedding_scaled = scaler.transform(embedding)
-  proba = float(model.predict_proba(embedding_scaled)[0, 1])
-  # Redondear a 4 decimales para evitar notación científica
-  proba = round(proba, 4)
-  label = "me" if proba >= DEFAULT_THRESHOLD else "not_me"
-  return {
-    "label": label,
-    "probability": proba,
-    "threshold": DEFAULT_THRESHOLD,
-  }
+    embedding_scaled = scaler.transform(embedding)
+    proba = float(model.predict_proba(embedding_scaled)[0, 1])
+    # Redondear a 4 decimales para evitar notación científica
+    proba = round(proba, 4)
+    label = "me" if proba >= DEFAULT_THRESHOLD else "not_me"
+    return {
+        "label": label,
+        "probability": proba,
+        "threshold": DEFAULT_THRESHOLD,
+    }
+
 
 @app.post("/verify")
 def verify() -> Tuple[Any, int] | Dict[str, Any]:
-  start_time = time.time()
-  
-  if "image" not in request.files:
-    return {"error": "Missing 'image' file in form-data"}, 400
+    start_time = time.time()
 
-  file_storage = request.files["image"]
-  if file_storage.filename == "":
-    return {"error": "Empty filename"}, 400
+    if "image" not in request.files:
+        return {"error": "Missing 'image' file in form-data"}, 400
 
-  # Validate MIME type
-  allowed_types = {"image/jpeg", "image/png"}
-  content_type = file_storage.content_type
-  if content_type not in allowed_types:
-    return {"error": "solo image/jpeg o image/png"}, 400
+    file_storage = request.files["image"]
+    if file_storage.filename == "":
+        return {"error": "Empty filename"}, 400
 
-  try:
-    image = Image.open(file_storage.stream).convert("RGB")
-  except UnidentifiedImageError:
-    return {"error": "Invalid image file"}, 400
+    # Validate MIME type
+    allowed_types = {"image/jpeg", "image/png"}
+    content_type = file_storage.content_type
+    if content_type not in allowed_types:
+        return {"error": "solo image/jpeg o image/png"}, 400
 
-  embedding, error = extract_embedding(image)
-  if embedding is None:
+    try:
+        image = Image.open(file_storage.stream).convert("RGB")
+    except UnidentifiedImageError:
+        return {"error": "Invalid image file"}, 400
+
+    embedding, error = extract_embedding(image)
+    if embedding is None:
+        elapsed_time = time.time() - start_time
+        return {"error": error, "time_elapsed": round(elapsed_time, 3)}, 422
+
+    result = predict_label(embedding)
     elapsed_time = time.time() - start_time
-    return {"error": error, "time_elapsed": round(elapsed_time, 3)}, 422
 
-  result = predict_label(embedding)
-  elapsed_time = time.time() - start_time
-  
-  response = {
-    "success": True,
-    "data": {
-      "model_version": "1.0",
-      "is_me": result["label"] == "me",
-      "score": result["probability"],
-      "threshold": result["threshold"],
-      "timing_ms": round(elapsed_time * 1000, 2)
-    },
-    "metadata": {
-      "request_id": str(uuid.uuid4()),
-      "timestamp": datetime.utcnow().isoformat() + "Z"
+    response = {
+        "success": True,
+        "data": {
+            "identity": "Cedric Kirmayr",
+            "model_version": "1.0",
+            "is_me": result["label"] == "me",
+            "score": result["probability"],
+            "threshold": result["threshold"],
+            "timing_ms": round(elapsed_time * 1000, 2),
+        },
+        "metadata": {
+            "request_id": str(uuid.uuid4()),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+        },
     }
-  }
-  
-  return response, 200
+
+    return response, 200
+
