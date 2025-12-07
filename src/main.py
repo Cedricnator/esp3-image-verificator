@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Tuple
 import time
+import uuid
+from datetime import datetime
 
 import joblib
 import numpy as np
@@ -59,6 +61,8 @@ def extract_embedding(image: Image.Image) -> Tuple[np.ndarray | None, str | None
 def predict_label(embedding: np.ndarray) -> Dict[str, Any]:
   embedding_scaled = scaler.transform(embedding)
   proba = float(model.predict_proba(embedding_scaled)[0, 1])
+  # Redondear a 4 decimales para evitar notación científica
+  proba = round(proba, 4)
   label = "me" if proba >= DEFAULT_THRESHOLD else "not_me"
   return {
     "label": label,
@@ -95,7 +99,20 @@ def verify() -> Tuple[Any, int] | Dict[str, Any]:
 
   result = predict_label(embedding)
   elapsed_time = time.time() - start_time
-  result["time_elapsed"] = round(elapsed_time, 3)
-  result["score"] = result["probability"]
   
-  return result, 200
+  response = {
+    "success": True,
+    "data": {
+      "model_version": "1.0",
+      "is_me": result["label"] == "me",
+      "score": result["probability"],
+      "threshold": result["threshold"],
+      "timing_ms": round(elapsed_time * 1000, 2)
+    },
+    "metadata": {
+      "request_id": str(uuid.uuid4()),
+      "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+  }
+  
+  return response, 200
