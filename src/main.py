@@ -96,5 +96,6 @@ def verify() -> Tuple[Any, int] | Dict[str, Any]:
   result = predict_label(embedding)
   elapsed_time = time.time() - start_time
   result["time_elapsed"] = round(elapsed_time, 3)
+  result["score"] = result["probability"]
   
   return result, 200

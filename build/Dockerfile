@@ -53,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${PORT}/health || exit 1
 
 # Run Gunicorn. Adjust WORKERS and THREADS via env vars if needed.
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:23211", "src.main:app", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--threads", "2"]
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:33211", "src.main:app", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--threads", "2"]
