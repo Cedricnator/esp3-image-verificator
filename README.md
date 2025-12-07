@@ -20,19 +20,19 @@ Ejecutar en desarrollo (Flask)
 ```bash
 # desde la raíz del repositorio
 export FLASK_APP=src.main:app
-flask run --host=0.0.0.0 --port=8000
+flask run --host=0.0.0.0 --port=23211
 ```
 
 Ejecutar en producción (Gunicorn)
 ```bash
 # desde la raíz del repositorio
-gunicorn -w 2 -b 0.0.0.0:5000 src.main:app --reload
+gunicorn -w 2 -b 0.0.0.0:23211 src.main:app --reload
 ```
 
 Ejemplo de petición
 - curl
 ```bash
-curl -X POST http://localhost:5000/verify -F "image=@/ruta/imagen.jpg"
+curl -X POST http://localhost:23211/verify -F "image=@/ruta/imagen.jpg"
 ```
 
 Privacidad y ética (resumen)

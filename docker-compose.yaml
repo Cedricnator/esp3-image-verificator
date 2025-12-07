@@ -6,12 +6,12 @@ services:
     container_name: esp3-image-verificator-api
     hostname: esp3-image-verificator-api
     ports:
-      - "8000:5000"
+      - "23211:23211"
     volumes:
       - ./:/app:delegated
       - cache-data:/app/.cache
     environment:
-      - PORT=5000
+      - PORT=23211
       - WORKERS=2
     restart: unless-stopped
     networks:
